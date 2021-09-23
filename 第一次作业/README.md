@@ -1,4 +1,6 @@
-## 模式识别与机器学习第一次作业
+## 模式识别与机器学习第一次作业-孙佳伟（202122060713）
+
+[项目地址：https://github.com/sinary-sys/pattern_recognition/tree/master/%E7%AC%AC%E4%B8%80%E6%AC%A1%E4%BD%9C%E4%B8%9A](https://github.com/sinary-sys/pattern_recognition/tree/master/%E7%AC%AC%E4%B8%80%E6%AC%A1%E4%BD%9C%E4%B8%9A)
 
 ### 一、 以肺活量为例，画出男女生肺活量的直方图并做对比
 
@@ -36,10 +38,39 @@ data = pd.read_excel(path)
 [351 rows x 13 columns]
 ```
 
+```python
+print(type(data))
+```
 
+```python
+<class 'pandas.core.frame.DataFrame'>
+```
 
-- DataFrame是一个表格型的数据类型，每列值类型可以不同，是最常用的pandas对象。
-- DataFrame既有行索引，也有列索引，它可以被看做由Series组成的字典（共用同一个索引）。
-- DataFrame中的数据是以一个或多个二维块存放的（而不是列表、字典或别的一维数据结构）。
-  
+读入的`data`是一个`DataFrame`类型的数据
+
+- `DataFrame`是一个表格型的数据类型，每列值类型可以不同，是最常用的pandas对象。
+- `DataFrame`既有行索引，也有列索引，它可以被看做由Series组成的字典（共用同一个索引）。
+- `DataFrame`中的数据是以一个或多个二维块存放的（而不是列表、字典或别的一维数据结构）。
+
+#### 2、导入数据的解析和肺活量绘图
+
+```python
+Vital_capacity = data['肺活量']
+
+print(Vital_capacity)
+```
+
+将`肺活量`的列读取为`Vital_capacity`，将`性别`读入为`gender`
+
+```python
+gender = data['性别 男1女0']
+```
+
+使用`matplotlib`绘图库，`matplotlib`是一个用于创建出版质量图表的桌面绘图包（主要是2D方面）
+
+导入`matplotlib`绘图库
+
+```python
+import matplotlib.pyplot as plt
+```
 
