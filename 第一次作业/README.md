@@ -55,22 +55,41 @@ print(type(data))
 #### 2、导入数据的解析和肺活量绘图
 
 ```python
-Vital_capacity = data['肺活量']
+man_Vital_capacity = data[data['性别 男1女0'].values == 1]
+man_Vital_capacity = man_Vital_capacity['肺活量']
 
-print(Vital_capacity)
+faman_Vital_capacity = data[data['性别 男1女0'].values == 0]
+faman_Vital_capacity = faman_Vital_capacity['肺活量']
 ```
 
-将`肺活量`的列读取为`Vital_capacity`，将`性别`读入为`gender`
-
-```python
-gender = data['性别 男1女0']
-```
+将`男生肺活量`的列经过条件筛选读取为`man_Vital_capacity`，将`女生肺活量`的列经过条件筛选读取为`man_Vital_capacity`。
 
 使用`matplotlib`绘图库，`matplotlib`是一个用于创建出版质量图表的桌面绘图包（主要是2D方面）
 
-导入`matplotlib`绘图库
+导入`matplotlib`绘图库。
 
 ```python
 import matplotlib.pyplot as plt
 ```
 
+```python
+plt.style.use("ggplot")
+# 指定分组个数
+n_bins=10
+fig,ax=plt.subplots(figsize=(8,5))
+# 实际绘图代码与单类型直方图差异不大，只是增加了一个图例项
+# 在 ax.hist 函数中先指定图例 label 名称
+ax.hist([man_Vital_capacity,faman_Vital_capacity], n_bins, histtype='bar',label=list('男女'))
+ax.set_title('男女生肺活量统计直方图')
+
+```
+
+![Figure_2](pictures/Figure_2.png)
+
+观察图标，可以明显发现，无论是男生还是女生，肺活量大致服从一个正态分布，女生的肺活量均值大约在3000左右，男生的肺活量均值在4000左右，
+
+### 二、  采用最大似然估计方法，求男女生肺活量的分布参数
+
+### 三、采用贝叶斯估计方法，求男女生肺活量的分布参数（方差已知，注明自己选定的参数情况）
+
+### 四、基于身高和体重，采用最小错误率贝叶斯决策，画出类别判定的决策面。并判断某样本的身高体重分别为(165,50)时应该属于男生还是女生？为(175,55)时呢？
