@@ -5,9 +5,9 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import scipy.stats as st
 
-# import numpy as np
-
+import numpy as np
 
 path = "F:\\Mirror\\学习资料\\研一\\pattern_recognition\\第一次作业\\作业数据_2021合成.xls"
 data = pd.read_excel(path)
@@ -48,4 +48,30 @@ ax1.bar(the_man_Vital_capacity.index, the_man_Vital_capacity.values, width=width
 ax1.bar(the_faman_Vital_capacity.index + width_1, the_faman_Vital_capacity.values, width=width_1, label="女生")
 
 ax1.legend()
+plt.show()
+
+man_norm = st.norm.fit(man_Vital_capacity.values)
+faman_norm = st.norm.fit(faman_Vital_capacity.values)
+print(man_norm, faman_norm)
+
+
+# 正态分布的概率密度函数
+def normpdf(x, mu, sigma):
+    pdf = np.exp(-(x - mu) ** 2 / (2 * sigma ** 2)) / (sigma * np.sqrt(2 * np.pi))
+    return pdf
+
+
+mu, sigma = (3247.794117647059, 760.1970440930107)
+x = np.arange(mu - 3 * sigma, mu + 3 * sigma, 0.01)  # 生成数据，步长越小，曲线越平滑
+y = normpdf(x, mu, sigma)
+# 概率分布曲线
+plt.plot(x, y, 'g--', linewidth=2)
+plt.title('Normal Distribution: mu = {:.2f}, sigma={:.2f}'.format(mu, sigma))
+plt.vlines(mu, 0, normpdf(mu, mu, sigma), colors="c", linestyles="dotted")
+plt.vlines(mu + sigma, 0, normpdf(mu + sigma, mu, sigma), colors="y", linestyles="dotted")
+plt.vlines(mu - sigma, 0, normpdf(mu - sigma, mu, sigma), colors="y", linestyles="dotted")
+plt.xticks([mu - sigma, mu, mu + sigma], ['μ-σ', 'μ', 'μ+σ'])
+
+# 输出
+plt.grid()
 plt.show()
