@@ -120,7 +120,48 @@ $$
 N(3247.794117647059, 760.1970440930107)
 $$
 
+根据求得的参数，为了更直观的看到男生和女生的肺活量概率密度，我们自定义一个产生正态分布概率密度函数的函数，画出男生和女生，关于肺活量的概率密度函数，函数定义如下
+
+```python
+# 正态分布的概率密度函数
+def normpdf(x, mu, sigma):
+    pdf = np.exp(-(x - mu) ** 2 / (2 * sigma ** 2)) / (sigma * np.sqrt(2 * np.pi))
+    return pdf
+```
+
+使用绘图库的函数，绘制正态分布的概率密度曲线。
+
+```python
+mu, sigma = (4300.950530035336, 766.7614177550078)
+x = np.arange(mu - 3 * sigma, mu + 3 * sigma, 0.01)  # 生成数据，步长越小，曲线越平滑
+y = normpdf(x, mu, sigma)
+
+mu1, sigma1 = (3247.794117647059, 760.1970440930107)
+x1 = np.arange(mu1 - 3 * sigma1, mu1 + 3 * sigma1, 0.01)  # 生成数据，步长越小，曲线越平滑
+y1 = normpdf(x1, mu1, sigma1)
+# 概率分布曲线
+plt.plot(x, y, 'r--', linewidth=2, label="man")
+plt.plot(x1, y1, 'g--', linewidth=2, label="faman")
+plt.title('Normal Distribution: mu = {:.2f}, sigma={:.2f}'.format(mu, sigma))
+
+plt.vlines(mu, 0, normpdf(mu, mu, sigma), colors="c", linestyles="dotted")
+plt.vlines(mu + sigma, 0, normpdf(mu + sigma, mu, sigma), colors="y", linestyles="dotted")
+plt.vlines(mu - sigma, 0, normpdf(mu - sigma, mu, sigma), colors="y", linestyles="dotted")
+plt.xticks([mu - sigma, mu, mu + sigma], ['μ-σ', 'μ', 'μ+σ'])
+```
+
+绘图结果如下：
+
+![Figure_4](pictures/Figure_4.png)
 
 ### 三、采用贝叶斯估计方法，求男女生肺活量的分布参数（方差已知，注明自己选定的参数情况）
+
+
+
+
+
+
+
+
 
 ### 四、基于身高和体重，采用最小错误率贝叶斯决策，画出类别判定的决策面。并判断某样本的身高体重分别为(165,50)时应该属于男生还是女生？为(175,55)时呢？
