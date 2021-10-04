@@ -1,4 +1,8 @@
-## 模式识别与机器学习第一次作业-孙佳伟（202122060713）
+## 模式识别与机器学习第一次作业
+
+### 孙佳伟（202122060713）
+
+### 庄鑫平
 
 [项目地址：https://github.com/sinary-sys/pattern_recognition/tree/master/%E7%AC%AC%E4%B8%80%E6%AC%A1%E4%BD%9C%E4%B8%9A](https://github.com/sinary-sys/pattern_recognition/tree/master/%E7%AC%AC%E4%B8%80%E6%AC%A1%E4%BD%9C%E4%B8%9A)
 
@@ -88,7 +92,7 @@ ax.set_title('男女生肺活量统计直方图')
 
 ![Figure_2](pictures/Figure_2.png)
 
-观察图标，可以明显发现，无论是男生还是女生，肺活量大致服从一个正态分布，女生的肺活量均值大约在3000左右，男生的肺活量均值在4000左右，这样的直方图表示方法，可能会让你感觉男生处于较高肺活量的感觉，但是这个不准确的，因为，在样本数据集中，男生的数量远远大于女生的数量。因此，数据应该进行归一化处理。
+观察图标，可以明显发现，无论是男生还是女生，肺活量大致服从一个正态分布，女生的肺活量均值大约在3000左右，男生的肺活量均值在4000左右，这样的直方图表示方法，可能会让你感觉男生处于较高肺活量的感觉，但是这个不准确的，因为，在样本数据集中，男生的数量远远大于女生的数量。因此，数据应该进行归一化处理。在特征空间中，某类样本较多分布在这类均值附近，远离均值的样本较少，一般用正态分布模型是合理的。在后续的实验分析中都将运用正态分布特性对男女生的样本进行分析。
 
 <img src="pictures/Figure_3.png" alt="Figure_3" style="zoom:200%;" />
 
@@ -154,14 +158,174 @@ plt.xticks([mu - sigma, mu, mu + sigma], ['μ-σ', 'μ', 'μ+σ'])
 
 ![Figure_4](pictures/Figure_4.png)
 
+根据最大似然估计的公式计算，对于正态分布来说，最大似然估计的均值就是样本均值，最大似然估计的方差就是样本方差，接下来计算一下样本的均值和方差，看一下是否一样。
+
+```python
+man_norm_avg = sum(man_Vital_capacity.values) / len(man_Vital_capacity.values)
+faman_norm_avg = sum(faman_Vital_capacity.values) / len(faman_Vital_capacity.values)
+print('男生样本均值', man_norm_avg)
+print('女生样本均值', faman_norm_avg)
+```
+
+这里我们计算了样本的均值，可以发现，是一样的
+
+```python
+(4300.950530035336, 766.7614177550078) (3247.794117647059, 760.1970440930107)
+男生样本均值 4300.950530035336
+女生样本均值 3247.794117647059
+
+Process finished with exit code 0
+```
+
+
+
 ### 三、采用贝叶斯估计方法，求男女生肺活量的分布参数（方差已知，注明自己选定的参数情况）
 
+根据正太分布的贝叶斯公式，需要根据先验知识，来确定先验的均值和方差，这里百度一下我国大学生的肺活量的均值和方差，作为我们估计的均值和方差，`男生3 840±562 mL`,`女生 2 661±536`,
 
+根据正态分布下的贝叶斯公式，定义贝叶斯函数
 
+```python
+def get_mean_bayes(arr, mean0, variance0, variance):
+    datasum = sum(arr)
+    datalen = len(arr)
+    mean_bayes = (variance0 * datasum + variance * mean0) / (datalen * variance0 + variance)
+    return mean_bayes
+```
 
+根据我们自己选定的参数和样本数据，求男生女生肺活量的分布参数
 
+```python
+print(get_mean_bayes(man_Vital_capacity.values, 3840, 562, 700))
+print(get_mean_bayes(faman_Vital_capacity.values, 2661, 536, 700))
+4298.930664930577
+3236.736836438032
+```
 
-
-
+对比与最大似然估计的方法，可以发现，求取的结果大致相同
 
 ### 四、基于身高和体重，采用最小错误率贝叶斯决策，画出类别判定的决策面。并判断某样本的身高体重分别为(165,50)时应该属于男生还是女生？为(175,55)时呢？
+
+基于身高和体重，
+
+c类分类决策问题：按决策规则把d维特征空间分为 为c个决策区域，根据实际问题，进行的是男生女生的判别，因此$c_1=男,c_2=女$
+
+决策面：划分决策域的边界面称为决策面，数学上用决策面方程表示。
+
+判别函数：表达决策规则的函数，本次使用的是最小错误率bayes决策，因此决策函数为$$ h^*(x)=arg max P(c/x)$$
+
+根据所给的数据，采用生成式模型先对联合概率密度$p(x,c)$建模，然后在获得$p(c/x)$。
+
+从表中分别提取男生和女生的身高和体重数据
+
+```python
+man_height = data[data['性别 男1女0'].values == 1]
+man_weight = man_height['体重(kg)']
+man_height = man_height['身高(cm)']
+faman_height = data[data['性别 男1女0'].values == 0]
+faman_weight = faman_height['体重(kg)']
+faman_height = faman_height['身高(cm)']
+```
+
+先计算类先验概率
+
+```python
+p_c1 = len(man_weight.values) / (len(man_weight.values) + len(faman_weight.values))
+p_c2 = len(faman_weight.values) / (len(man_weight.values) + len(faman_weight.values))
+print(p_c1, p_c2)
+```
+
+打印结果为`0.8062678062678063` `0.19373219373219372`，可知$p(c_1)=0.806$ ，$p(c_2)=0.1937$
+
+接下来使用极大似然估计，估计男生女生的身高和体重的分布参数。
+
+```python
+man_height_mean, man_height_std = st.norm.fit(man_height.values)  # 男生升高分布参数
+man_weight_mean, man_weight_std = st.norm.fit(man_weight.values)  # 男生体重分布参数
+woman_height_mean, woman_height_std = st.norm.fit(faman_height.values)  # 女生升高分布参数
+woman_weight_mean, woman_weight_std = st.norm.fit(faman_weight.values)  # 女生体重分布参数
+print('男生身高', man_height_mean, man_height_std)
+print('男生体重', man_weight_mean, man_weight_std)
+print('女生身高', woman_height_mean, woman_height_std)
+print('女生体重', woman_weight_mean, woman_weight_std)
+男生身高 174.3374558303887 6.017355043960831
+男生体重 67.30742049469964 10.328740378112387
+女生身高 163.73529411764707 4.828279583560197
+女生体重 51.0 6.2172672264191675
+```
+
+```python
+# 求协方差矩阵
+def get_covariance_matrix_coefficient(arr1, arr2):  # arr1与arr2长度相等
+    datalength1 = len(arr1)
+    datalength2 = len(arr2)
+    sum_temp = []
+    for i in range(datalength1):
+        sum_temp.append((arr1[i] - sum(arr1) / datalength1) * (arr2[i] - sum(arr2) / datalength2))
+        c12 = sum(sum_temp)
+    covariance_matrix_c12 = c12 / (datalength1 - 1)
+    return covariance_matrix_c12
+```
+
+```py
+man_c11 = man_height_std ** 2
+man_c22 = man_weight_std ** 2
+man_c12 = man_c21 = get_covariance_matrix_coefficient(man_height.values, man_weight.values)
+man_covariance_matrix = np.matrix([[man_c11, man_c12], [man_c21, man_c22]])
+woman_c11 = woman_height_std ** 2
+woman_c22 = woman_weight_std ** 2
+woman_c12 = woman_c21 = get_covariance_matrix_coefficient(faman_height.values, faman_weight.values)
+woman_covariance_matrix = np.matrix([[woman_c11, woman_c12], [woman_c21, woman_c22]])
+print(man_covariance_matrix, woman_covariance_matrix)
+
+man_feature_mean_vector = np.matrix([[man_height_mean], [man_weight_mean]])
+woman_feature_mean_vector = np.matrix([[woman_height_mean], [woman_weight_mean]])
+```
+
+根据协方差矩阵的定义，求出协方差矩阵。
+
+```python
+# 定义等高线高度函数
+def f(sample_height, sample_weight):
+    mytemp1 = np.zeros(shape=(100, 100))
+    for i in range(100):
+        for j in range(100):
+            sample_vector = np.matrix([[sample_height[i, j]], [sample_weight[i, j]]])
+            sample_vector_T = np.transpose(sample_vector)
+            # 定义决策函数
+            mytemp1[i, j] = 0.5 * np.transpose(sample_vector - man_feature_mean_vector) * (
+                np.linalg.inv(man_covariance_matrix)) * \
+                            (sample_vector - man_feature_mean_vector) - 0.5 * np.transpose(
+                sample_vector - woman_feature_mean_vector) * \
+                            (np.linalg.inv(woman_covariance_matrix)) * (sample_vector - woman_feature_mean_vector) + \
+                            0.5 * math.log(
+                (np.linalg.det(man_covariance_matrix)) / (np.linalg.det(woman_covariance_matrix))) - \
+                            math.log(p_c1 / p_c2)
+    return mytemp1
+
+
+sample_height = np.linspace(150, 180, 100)
+sample_weight = np.linspace(40, 80, 100)
+# 将原始数据变成网格数据
+Sample_height, Sample_weight = np.meshgrid(sample_height, sample_weight)
+# 填充颜色
+plt.contourf(Sample_height, Sample_weight, f(Sample_height, Sample_weight), 0, alpha=0)
+# 绘制等高线,圈内为女生，圈外为男生
+C = plt.contour(Sample_height, Sample_weight, f(Sample_height, Sample_weight), 0, colors='black', linewidths=0.6)
+# 显示各等高线的数据标签
+plt.clabel(C, inline=True, fontsize=10)
+
+# 显示男女生样本散点图
+
+p1 = plt.scatter(man_height.values, man_weight.values, c='g', marker='+', linewidths=0.4)
+p2 = plt.scatter(faman_height.values, faman_weight.values, c='r', marker='*', linewidths=0.4)
+```
+
+使用python库函数plt.contour画类别决策面，并将(160,45)与(178,70)打点与图上，可知(160,45)属于女生，(178,70)属于男生。结果如图
+
+![Figure_5](pictures/Figure_5.png)
+
+### 五、参考文献
+
+1. https://cloud.tencent.com/developer/article/1094425
+
